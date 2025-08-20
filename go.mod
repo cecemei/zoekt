@@ -14,7 +14,7 @@ require (
 	github.com/go-git/go-git/v5 v5.13.1
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-cmp v0.6.0
-	github.com/google/go-github/v27 v27.0.6
+	github.com/google/go-github/v63 v63.0.0
 	github.com/google/slothfs v0.0.0-20190717100203-59c1163fd173
 	github.com/grafana/regexp v0.0.0-20240607082908-2cb410fa05da
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0

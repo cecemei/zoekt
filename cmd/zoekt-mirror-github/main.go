@@ -30,7 +30,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/v27/github"
+	"github.com/google/go-github/v63/github"
 	"golang.org/x/oauth2"
 
 	"github.com/sourcegraph/zoekt/internal/gitindex"
@@ -159,6 +159,7 @@ func main() {
 			log.Fatalf("deleteStaleRepos: %v", err)
 		}
 	}
+	log.Printf("Cloned %d repos to %s", len(repos), destDir)
 }
 
 func newOAuthClient(token *string) *http.Client {
@@ -172,7 +173,7 @@ func newOAuthClient(token *string) *http.Client {
 		}
 	} else {
 		defaultToken := filepath.Join(os.Getenv("HOME"), ".github-token")
-		content, err = os.ReadFile(defaultToken)
+		content, err = os.ReadFile(defaultToken)	
 		if err != nil && os.IsNotExist(err) { // use unauthenticated client
 			return nil
 		} else if err != nil {
@@ -265,16 +266,25 @@ func getOrgRepos(client *github.Client, org string, reposFilters reposFilters) (
 
 func getUserRepos(client *github.Client, user string, reposFilters reposFilters) ([]*github.Repository, error) {
 	var allRepos []*github.Repository
-	opt := &github.RepositoryListOptions{}
-	for {
-		repos, resp, err := client.Repositories.List(context.Background(), user, opt)
+	opt := &github.RepositoryListByAuthenticatedUserOptions{
+		Type: "owner",
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
+	u, _, err := client.Users.Get(context.Background(), user)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Authenticated as %s\n", u.GetLogin())
+
+	for { 
+		repos, resp, err := client.Repositories.ListByAuthenticatedUser(context.Background(), opt)
 		if err != nil {
 			return nil, err
 		}
 		if len(repos) == 0 {
 			break
 		}
-
+		
 		opt.Page = resp.NextPage
 		repos = filterRepositories(repos, reposFilters.topics, reposFilters.excludeTopics, *reposFilters.noArchived)
 		allRepos = append(allRepos, repos...)
