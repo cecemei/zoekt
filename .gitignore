@@ -1,3 +1,4 @@
+zoekt-setup/*
 *~
 cmd/zoekt-index/zoekt-index
 cmd/zoekt-webserver/zoekt-webserver
